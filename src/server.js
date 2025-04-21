@@ -10,6 +10,7 @@ const { rateLimit }  = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
 const errorHandler = require('./middleware/errorHandler');
 const router = require('./routes/auth-service');
+const { validateToken } = require('./middleware/authMiddleware');
 
 
 
