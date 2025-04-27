@@ -5,7 +5,7 @@ const validateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(" ")[1];
 
-    if(!token) {
+    if (!token) {
         logger.warn("Access attempt without valid token!")
         return res.status(401).json({
             success: false,
@@ -14,7 +14,7 @@ const validateToken = (req, res, next) => {
     }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if(err) {
+        if (err) {
             logger.warn("Access attempt with invalid token!")
             return res.status(403).json({
                 success: false,
@@ -23,6 +23,8 @@ const validateToken = (req, res, next) => {
         }
 
         req.user = user;
+        console.log(user);
+
         next();
     });
 
