@@ -6,16 +6,35 @@ const helmet = require('helmet');
 const cors = require('cors');
 const { RateLimiterRedis } = require("rate-limiter-flexible");
 const Redis = require('ioredis');
-const { rateLimit }  = require('express-rate-limit');
+const { rateLimit } = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
 const errorHandler = require('./middleware/errorHandler');
-const router = require('./routes/auth-service');
-const { validateToken } = require('./middleware/authMiddleware');
-
+const authroute = require('./routes/auth-service');
+const chatroute = require('./routes/messages');
+const grouproute = require('./routes/groups');
+const { Server } = require("socket.io");
+const http = require('http');
+const { setupSocket } = require('./sockets/socketHandler');
 
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const server = http.createServer(app);
+
+
+// Initialize Socket.io with CORS
+const io = new Server(server, {
+    cors: {
+        origin: process.env.FRONTEND_ENDPOINT = "http://localhost:5173"
+            || "*", // Vite frontend port
+        methods: ["GET", "POST"],
+        credentials: true,
+    }
+});
+
+// Setup socket handlers from the module
+setupSocket(io);
+
 
 // connection to database
 mongoose
@@ -37,7 +56,7 @@ app.use((req, res, next) => {
     logger.info(`Request body: ${JSON.stringify(req.body)}`);
 
     next();
-}); 
+});
 
 
 // DDos Protection and rate limiting
@@ -68,7 +87,7 @@ const sensitiveRateLimiter = rateLimit({
     max: 100,
     standardHeaders: true,
     legacyHeaders: false,
-    handler: (req, res)=>{
+    handler: (req, res) => {
         logger.warn(`Sensitive endppoint rate limit exceeded for IP: ${req.ip}`);
         res.status(429).json({
             success: false,
@@ -84,15 +103,14 @@ const sensitiveRateLimiter = rateLimit({
 app.use('/api/auth/register', sensitiveRateLimiter);
 
 // Routes
-app.use('/api/auth', router);
-
-
-
+app.use('/api/auth', authroute);
+app.use('/api/chat', chatroute);
+app.use('/api/group', grouproute);
 
 // Error handling middleware
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 })
 
@@ -101,3 +119,6 @@ app.listen(PORT, () => {
 process.on('unhandledRejection', (reason, promise) => {
     logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
+
+// Make io accessible to route handlers if needed
+app.set('io', io);
