@@ -13,7 +13,8 @@ const createGroup = async (req, res) => {
   const { name, members, adminId } = req.body;
 
   try {
-    const group = new Group({ name, members, adminId });
+    members.push(adminId);
+    const group = new Group({ name, members, "admin":adminId });
     await group.save();
     res.status(201).json(group);
   } catch (error) {

@@ -12,6 +12,7 @@ const errorHandler = require('./middleware/errorHandler');
 const authroute = require('./routes/auth-service');
 const chatroute = require('./routes/messages');
 const grouproute = require('./routes/groups');
+const userroute = require('./routes/users');
 const { Server } = require("socket.io");
 const http = require('http');
 const { setupSocket } = require('./sockets/socketHandler');
@@ -106,6 +107,7 @@ app.use('/api/auth/register', sensitiveRateLimiter);
 app.use('/api/auth', authroute);
 app.use('/api/chat', chatroute);
 app.use('/api/group', grouproute);
+app.use('/api/users', userroute);
 
 // Error handling middleware
 app.use(errorHandler);
