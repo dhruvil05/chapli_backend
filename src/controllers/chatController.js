@@ -95,14 +95,28 @@ const getChatList = async (req, res) => {
 
         // Groups where user is a member
         const groups = await Group.find({ members: userId })
-            .select('_id groupName')
+            .select('_id name')
             .lean();
 
-        const groupChats = groups.map(group => ({
-            _id: group._id,
-            groupName: group.groupName,
-            isGroup: true
-        }));
+        const groupChats = await Promise.all(
+            groups.map(async (group) => {
+                const roomId = group._id;
+                // console.log(roomId);
+
+                const lastMessageDoc = await Message.findOne({ roomId })
+                    .sort({ sentAt: -1 }) // Latest first
+                    .select('message sentAt');
+
+                return {
+                    _id: group._id,
+                    groupName: group.name,
+                    isGroup: true,
+                    lastMessage: lastMessageDoc ? lastMessageDoc.message : null,
+                    lastMessageTime: lastMessageDoc ? lastMessageDoc.sentAt : null
+                };
+            })
+
+        );
 
         const chatList = [...groupChats, ...userChats];
 

@@ -17,6 +17,11 @@ function setupSocket(io) {
             console.log(`User ${socket.id} joined private room: ${roomId}`);
         });
 
+        socket.on('join-room', ({ roomId }) => {
+            socket.join(roomId);
+            console.log(`User ${socket.id} joined private room: ${roomId}`);
+        });
+
         // Handle events from clients
         socket.on("sendMessage", async ({ senderId, receiverId, message, isGroup = false }) => {
             logger.info(`Message received from ${socket.id}: ${JSON.stringify(senderId)}: ${message}`);
@@ -55,7 +60,7 @@ function setupSocket(io) {
                     return;
                 }
                 socket.join(groupId);
-                socket.to(groupId).emit('user-joined-group', { userId, groupId });
+                // socket.to(groupId).emit('user-joined-group', { userId, groupId });
                 console.log(`User ${userId} joined group ${groupId}`);
             } catch (err) {
                 console.error(err);
