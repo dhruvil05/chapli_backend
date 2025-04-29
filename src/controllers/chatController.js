@@ -95,7 +95,7 @@ const getChatList = async (req, res) => {
 
         // Groups where user is a member
         const groups = await Group.find({ members: userId })
-            .select('_id name')
+            .select('_id name admins')
             .lean();
 
         const groupChats = await Promise.all(
@@ -110,6 +110,7 @@ const getChatList = async (req, res) => {
                 return {
                     _id: group._id,
                     groupName: group.name,
+                    admins: group.admins,
                     isGroup: true,
                     lastMessage: lastMessageDoc ? lastMessageDoc.message : null,
                     lastMessageTime: lastMessageDoc ? lastMessageDoc.sentAt : null

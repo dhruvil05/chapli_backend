@@ -52,16 +52,12 @@ function setupSocket(io) {
         });
 
         // Example: Join a specific room
-        socket.on('join-group', async ({ groupId, userId }) => {
+        socket.on('join-group', async ({ groupId }) => {
             try {
-                const res = await joinGroup(groupId, userId);
-                if (!res.success) {
-                    socket.emit('group-error', { message: res.message });
-                    return;
-                }
+
                 socket.join(groupId);
-                // socket.to(groupId).emit('user-joined-group', { userId, groupId });
-                console.log(`User ${userId} joined group ${groupId}`);
+                // socket.to(groupId).emit('user-joined-group', { userIds, groupId });
+                console.log(`User joined group ${groupId}`);
             } catch (err) {
                 console.error(err);
                 socket.emit('group-error', { message: 'Failed to join group.' });
@@ -70,29 +66,8 @@ function setupSocket(io) {
 
         socket.on('leave-group', ({ groupId, userId }) => {
             socket.leave(groupId);
-            socket.to(groupId).emit('user-left-group', { userId, groupId });
             console.log(`User ${userId} left group ${groupId}`);
         });
-
-        // Example: Send message to specific room
-        // socket.on("room-message", ({ roomId, message }) => {
-        //     logger.info(`Room message to ${roomId}: ${JSON.stringify(message)}`);
-        //     io.to(roomId).emit("room-message", {
-        //         sender: socket.id,
-        //         message,
-        //         timestamp: new Date()
-        //     });
-        // });
-
-        // Example: Private message to specific client
-        // socket.on("private-message", ({ to, message }) => {
-        //     logger.info(`Private message to ${to}: ${JSON.stringify(message)}`);
-        //     socket.to(to).emit("private-message", {
-        //         sender: socket.id,
-        //         message,
-        //         timestamp: new Date()
-        //     });
-        // });
 
         // Handle disconnection
         socket.on("disconnect", () => {
