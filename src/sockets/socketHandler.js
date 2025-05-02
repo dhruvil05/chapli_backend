@@ -17,11 +17,6 @@ function setupSocket(io) {
             console.log(`User ${socket.id} joined private room: ${roomId}`);
         });
 
-        socket.on('join-room', ({ roomId }) => {
-            socket.join(roomId);
-            console.log(`User ${socket.id} joined private room: ${roomId}`);
-        });
-
         // Handle events from clients
         socket.on("sendMessage", async ({ senderId, receiverId, message, isGroup = false }) => {
             logger.info(`Message received from ${socket.id}: ${JSON.stringify(senderId)}: ${message}`);
@@ -55,9 +50,9 @@ function setupSocket(io) {
         socket.on('join-group', async ({ groupId }) => {
             try {
 
-                socket.join(groupId);
-                // socket.to(groupId).emit('user-joined-group', { userIds, groupId });
+                // socket.join(groupId);
                 console.log(`User joined group ${groupId}`);
+                socket.to(groupId).emit('group-updated', { groupId });
             } catch (err) {
                 console.error(err);
                 socket.emit('group-error', { message: 'Failed to join group.' });

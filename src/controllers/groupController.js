@@ -78,9 +78,9 @@ const leaveGroup = async (req, res) => {
     const group = await Group.findById(groupId);
     if (!group) return res.status(404).json({ success: false, message: 'Group not found' });
 
-    if (group.admins.toString() !== requestingUserId) {
-      return res.status(403).json({ success: false, message: 'Only group admin can remove users' });
-    }
+    // if (group.admins.toString() !== requestingUserId) {
+    //   return res.status(403).json({ success: false, message: 'Only group admin can remove users' });
+    // }
 
     // Prevent removing all admins unless fallback handled
     const willRemoveAllAdmins = group.admins.every((adminId) =>
