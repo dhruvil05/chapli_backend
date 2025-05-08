@@ -1,4 +1,5 @@
 const Group = require('../models/Group');
+const User = require("../models/User");
 
 const getGroups = async (req, res) => {
   try {
@@ -71,8 +72,7 @@ const joinGroup = async (req, res) => {
 };
 
 const leaveGroup = async (req, res) => {
-  const { groupId, userIds, requestingUserId } = req.body;
-
+  const { groupId, userIds } = req.body;
 
   try {
     const group = await Group.findById(groupId);
@@ -115,10 +115,44 @@ const leaveGroup = async (req, res) => {
   }
 };
 
+const getGroupMembers = async (req, res) => {
+  const groupId = req.params.conversationId;
+
+  try {
+    const group = await Group.findById(groupId);
+
+    if (!group) {
+      return res.status(404).json({ success: false, message: 'Group not found' });
+    }
+
+    const users = await User.find(
+      { _id: { $in: group.members } },
+      { password: 0, refreshToken: 0 } 
+    ).lean(); // Use lean() to get plain JavaScript objects
+
+    // Create a Set of admin IDs for efficient lookups
+    const adminIds = new Set(group.admins.map(adminId => adminId.toString()));
+
+    const membersWithDetails = users.map(user => {
+      return {
+        ...user,
+        isAdmin: adminIds.has(user._id.toString())
+      };
+    });
+
+    res.status(200).json(membersWithDetails);
+
+  } catch (error) {
+    console.error('Error fetching group members:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   getGroups,
   createGroup,
   deleteGroup,
   joinGroup,
-  leaveGroup
+  leaveGroup,
+  getGroupMembers
 };
