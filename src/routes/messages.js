@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get('/addMessage', storeMessage);
 router.get('/getAllMessage', getAllMessages);
-router.post('/getMessages', getMessages)
+router.post('/messages', getMessages);
 router.get('/chat-list', validateToken, getChatList);
 
 module.exports = router;
