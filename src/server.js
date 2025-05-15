@@ -26,7 +26,7 @@ const server = http.createServer(app);
 // Initialize Socket.io with CORS
 const io = new Server(server, {
     cors: {
-        origin: process.env.FRONTEND_ENDPOINT = "http://localhost:5173"
+        origin: process.env.FRONTEND_ENDPOINT || "http://localhost:5173"
             || "*", // Vite frontend port
         methods: ["GET", "POST"],
         credentials: true,
@@ -108,7 +108,12 @@ app.use('/api/auth', authroute);
 app.use('/api/chat', chatroute);
 app.use('/api/group', grouproute);
 app.use('/api/users', userroute);
-
+app.get('/api/check', (req, res) => {
+    return res.json({
+        success: true,
+        message: "test checked"
+    })
+})
 // Error handling middleware
 app.use(errorHandler);
 
