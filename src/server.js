@@ -19,8 +19,7 @@ const { setupSocket } = require('./sockets/socketHandler');
 
 
 const app = express();
-// ✅ Add this line BEFORE any middleware like rate limiter
-app.set('trust proxy', true);
+
 const PORT = process.env.PORT || 3001;
 const server = http.createServer(app);
 
@@ -41,10 +40,7 @@ setupSocket(io);
 
 // connection to database
 mongoose
-    .connect(process.env.DB_URL, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    })
+    .connect(process.env.DB_URL)
     .then(() => logger.info("Connected to database"))
     .catch((err) => logger.error("Database connection error", err));
 
@@ -72,7 +68,8 @@ const rateLimiter = new RateLimiterRedis({
     points: 10,
     duration: 1,
 })
-
+// ✅ Add this line BEFORE any middleware like rate limiter
+app.set('trust proxy', 1);
 app.use((req, res, next) => {
     rateLimiter.consume(req.ip)
         .then(() => {
