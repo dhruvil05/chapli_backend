@@ -41,7 +41,10 @@ setupSocket(io);
 
 // connection to database
 mongoose
-    .connect(process.env.DB_URL)
+    .connect(process.env.DB_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    })
     .then(() => logger.info("Connected to database"))
     .catch((err) => logger.error("Database connection error", err));
 
