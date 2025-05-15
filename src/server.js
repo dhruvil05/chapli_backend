@@ -19,6 +19,8 @@ const { setupSocket } = require('./sockets/socketHandler');
 
 
 const app = express();
+// ✅ Add this line BEFORE any middleware like rate limiter
+app.set('trust proxy', true);
 const PORT = process.env.PORT || 3001;
 const server = http.createServer(app);
 
